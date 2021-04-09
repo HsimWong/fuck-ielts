@@ -50,7 +50,7 @@ def memorize_new_list():
     global today_recited
     for word in new_word_list:
         print()
-        print("含义：",word['meaning'], '\t', "词汇：",word['key'], "\t")
+        print("含义：",word['meaning'], '\n', "词汇：",word['key'], "\t")
         print("发音：",word['pronounciation'])
         refined_word = word['key'][:-1] if word['key'][-1] == '*' else word['key']
         while True:
