@@ -4,7 +4,7 @@ Chn->Eng: 1
 Check Eng->Chn: pass 1
 Check Chn->Eng: pass 1
 '''
-daily_items = 3
+daily_items = 50
 scanned_words = {}
 new_word_list = []   # [split:[words]]
 callback_list = {}
