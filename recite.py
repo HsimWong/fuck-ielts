@@ -157,7 +157,7 @@ def save():
         f.write(str(datetime.datetime.now()))
         f.write('\t')
         if (exit_flag_memorize):
-            f.write(str(callback_list))
+            f.write(str(len(callback_list)))
             f.write('\t')
             f.write('0')
         else:
