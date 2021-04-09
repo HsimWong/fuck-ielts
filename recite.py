@@ -10,7 +10,8 @@ new_word_list = []   # [split:[words]]
 callback_list = {}
 today_recited = {}
 today_not_remembered = {}
-
+exit_flag_memorize = False
+exit_flag_callback = False
 
 import json 
 import random
@@ -22,7 +23,7 @@ def load_history():
     global callback_list
     global today_not_remembered
     global today_recited
-    with open("history.json", 'r') as f:
+    with open("history.json", 'w+') as f:
         raw_content = str(f.read())
         # print(raw_content)
         if len(raw_content) == 0:
@@ -57,6 +58,8 @@ def memorize_new_list():
             word['recited_times'] += 1
             entry = input("请拼写出整个单词：")
             if entry == 'exit':
+                global exit_flag_memorize
+                exit_flag_memorize = True
                 return
             elif entry == refined_word:
                 callback_list.update({int(word['index']):word})
@@ -67,7 +70,6 @@ def memorize_new_list():
                 callback_list.update({int(word['index']):word})
                 print("输入错误，请重新输入")
                 continue
-        print("你已经背完今天的生词了，我们回顾以下他们")
 
         
 
@@ -109,6 +111,8 @@ def check_callbacks():
                     print("含义：",word['meaning'])
                     entry = input("请写出其英文：")
                     if entry == 'exit':
+                        global exit_flag_callback
+                        exit_flag_callback = True
                         return
                     elif entry == refined_word:
                         word['corrects'] += 1
@@ -136,7 +140,13 @@ def save():
     global callback_list
     global today_not_remembered
     global today_recited
-    print("祝贺！你已经完成了今天的任务")
+    global exit_flag_memorize
+    global exit_flag_callback
+    if exit_flag_memorize:
+        print("在生词没有被浏览完毕的情况下，你的进度将不被保存。")
+        # print(scanned_words)
+    else:
+        print("祝贺！你已经完成了今天的任务")
     history_file = str(json.dumps(scanned_words, ensure_ascii=False).encode('utf-8').decode('utf-8'))
     with open('history.json', 'w') as f:
         f.write(history_file)
@@ -146,17 +156,30 @@ def save():
         f.write('\n')
         f.write(str(datetime.datetime.now()))
         f.write('\t')
-        f.write(str(daily_items - len(callback_list)))
+        if (exit_flag_memorize):
+            f.write(str(callback_list))
+            f.write('\t')
+            f.write('0')
+        else:
+            f.write(str(daily_items))
+            f.wrte('\t')  
+            f.write(str(min(daily_items - len(callback_list))))
 
 
     
 
 def main():
+    global exit_flag_memorize
     load_history()
     generate_callbacks()
     generate_new_list()
     memorize_new_list()
-    check_callbacks()
+
+    
+    if not exit_flag_memorize:
+        print("你已经背完今天的生词了，我们回顾一下他们")
+        check_callbacks()
+
     save()
 
 
