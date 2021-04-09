@@ -4,7 +4,8 @@ Chn->Eng: 1
 Check Eng->Chn: pass 1
 Check Chn->Eng: pass 1
 '''
-daily_items = 50
+daily_items = 2
+
 scanned_words = {}
 new_word_list = []   # [split:[words]]
 callback_list = {}
@@ -23,7 +24,8 @@ def load_history():
     global callback_list
     global today_not_remembered
     global today_recited
-    with open("history.json", 'w+') as f:
+
+    with open("history.json", 'r+') as f:
         raw_content = str(f.read())
         # print(raw_content)
         if len(raw_content) == 0:
@@ -105,6 +107,7 @@ def check_callbacks():
             for word_index in keys:
                 word = callback_list[word_index]
                 refined_word = word['key'][:-1] if word['key'][-1] == '*' else word['key']
+                contiuous_mistakes = 0
                 while True:
                     word['recited_times'] += 1
                     word['today_recited'] += 1
@@ -127,7 +130,16 @@ def check_callbacks():
                     else:
                         word['mistakes'] += 1
                         scanned_words.update({int(word['index']):word})
+                        word['today_recited'] = 0
+                        contiuous_mistakes += 1
+                        
                         print("输入错误，请重新输入")
+                        if contiuous_mistakes >= 3:
+                            print("\n想不起来了吗？来看看正确的含义，好好记一下～")
+                            print("含义：",word['meaning'], '\n', "词汇：",word['key'], "\t")
+                            print("发音：",word['pronounciation'])
+                            print("先来看看别的词，一会回来考你～\n")
+                            break 
                         continue
                 continue
 
@@ -146,7 +158,11 @@ def save():
         print("在生词没有被浏览完毕的情况下，你的进度将不被保存。")
         # print(scanned_words)
     else:
-        print("祝贺！你已经完成了今天的任务")
+        global exit_flag_callback
+        if not exit_flag_callback:
+            print("祝贺！你已经完成了今天的任务")
+        else:
+            print("今天的任务还没有完成")
     history_file = str(json.dumps(scanned_words, ensure_ascii=False).encode('utf-8').decode('utf-8'))
     with open('history.json', 'w') as f:
         f.write(history_file)
@@ -162,8 +178,8 @@ def save():
             f.write('0')
         else:
             f.write(str(daily_items))
-            f.wrte('\t')  
-            f.write(str(min(daily_items - len(callback_list))))
+            f.write('\t')  
+            f.write(str((daily_items - len(callback_list))))
 
 
     
